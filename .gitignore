@@ -1,0 +1,5 @@
+*.pyc
+tmp/
+*_local.py
+*_temp/
+logs/
