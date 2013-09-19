@@ -7,7 +7,7 @@ app.config.from_object('restapi.settings')
 if os.environ.get('RESTAPI_SETTINGS_PATH') is not None:
     app.config.from_envvar('RESTAPI_SETTINGS_PATH')
 
-from .views import Index, hello
+from .resources import Index, hello, ImageCollection
 
 def route(rule, view_func, endpoint=None, **options):
     if hasattr(view_func, 'as_view'):
@@ -18,6 +18,5 @@ def route(rule, view_func, endpoint=None, **options):
 
 route('/', Index, 'index')
 route('/hello', hello, 'hello', methods=['POST'])
-
-#route('/images', ImagesCollection, 'images_collection')
+route('/images', ImageCollection, 'image_collection')
 #route('/images/<path:', ImagesCollection, 'images_collection')

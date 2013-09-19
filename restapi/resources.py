@@ -1,17 +1,22 @@
+import json
 
-class Resource(object):
-    def render_GET(self, request):
-        raise NotImplementedError('Resource is abstract. Derive this and implement.')
-    def render_PUT(self, request):
-        raise NotImplementedError('Resource is abstract. Derive this and implement.')
-    def render_DELETE(self, request):
-        raise NotImplementedError('Resource is abstract. Derive this and implement.')
-    def render_POST(self, request):
-        raise NotImplementedError('Resource is abstract. Derive this and implement.')
+from flask import request, Response, url_for, jsonify
+from flask.views import MethodView
 
-class WorkspaceResource(Resource):
-    def repr_hal(self, request):
-        pass
 
-resources = None
-        
+def asjson(resource):
+    return Response(json.dumps(resource.repr_hal()), mimetype='application/json')
+
+class Index(MethodView):
+    def get(self):
+        return 'hello: ' + url_for('.index', _external=True)
+
+    def post(self):
+        return 'bye: ' + url_for('.index', _external=True)
+
+def hello():
+    return 'hello func ' + url_for('.hello', _external=True)
+
+class ImageCollection(MethodView):
+    def get(self):
+        return jsonify([])
