@@ -13,3 +13,6 @@ class Index(MethodView):
 
     def post(self):
         return 'bye: ' + url_for('.index', _external=True)
+
+def hello():
+    return 'hello func ' + url_for('.hello', _external=True)

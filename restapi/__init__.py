@@ -7,9 +7,17 @@ app.config.from_object('restapi.settings')
 if os.environ.get('RESTAPI_SETTINGS_PATH') is not None:
     app.config.from_envvar('RESTAPI_SETTINGS_PATH')
 
-from .views import Index
+from .views import Index, hello
 
-def route(rule, method_view, endpoint, **options):
-    app.add_url_rule(rule, view_func=method_view.as_view(endpoint), **options)
+def route(rule, view_func, endpoint=None, **options):
+    if hasattr(view_func, 'as_view'):
+        assert endpoint is not None, 'when using MethodView, must pass the view function name (endpoint)'
+        view_func = view_func.as_view(endpoint)
+    app.add_url_rule(rule, view_func=view_func, endpoint=endpoint,**options)
+
 
 route('/', Index, 'index')
+route('/hello', hello, 'hello', methods=['POST'])
+
+#route('/images', ImagesCollection, 'images_collection')
+#route('/images/<path:', ImagesCollection, 'images_collection')
