@@ -15,7 +15,5 @@ def is_mimetype(mimetype):
         return request.mimetype == mimetype
     return pred
 
-def true():
-    return True
 
 

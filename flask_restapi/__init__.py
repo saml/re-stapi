@@ -1,6 +1,6 @@
-from flask import request, abort, Response
+from flask import abort
 
-from .helpers import is_accept, is_method, is_mimetype, true
+from .helpers import is_accept, is_method, is_mimetype
 
 class Resource(object):
     def __init__(self):
@@ -18,20 +18,24 @@ class Resource(object):
     def mimetype(self, http_content_type):
         return self._if(is_mimetype(http_content_type))
 
-    def anded(self, *preds):
-        pass
-
     def when(self, method=None, accept=None, mimetype=None):
+        preds = []
         if method is not None:
             self.methods.add(method)
-            method_fn = is_method(method)
-        else:
-            method_fn = true
+            preds.append(is_method(method))
 
-        accept_fn = is_accept(accept) if accept is not None else true
-        mimetype_fn = is_mimetype(mimetype) if mimetype is not None else true
-        
-        pred = lambda: accept_fn() and method_fn() and mimetype_fn()
+        if accept is not None:
+            preds.append(is_accept(accept))
+
+        if mimetype is not None:
+            preds.append(is_mimetype(mimetype))
+
+        def pred():
+            for predicate in preds:
+                if not predicate():
+                    return False
+            return True
+
         return self._if(pred)
 
     def _if(self, pred):
@@ -40,18 +44,18 @@ class Resource(object):
             return fn
         return wrapped
 
-    def as_view(self, endpoint):
+    def as_view(self):
         def fn(*args, **kwargs):
             for pred,f in self.dispatch:
                 if pred():
                     return f(*args, **kwargs)
-            resp = Response('Non Exhaustive Resource (endpoint={}, name={}): {} '.format(endpoint, self.__name__, request.url))
-            resp.status_code = 500
-            abort(resp)
+
+            # request doesn't match any predicate
+            abort(400)
         return fn
 
 def route(app, rule, resource, endpoint, **options):
-    view_func = resource.as_view(endpoint)
+    view_func = resource.as_view()
     methods = [method for method in resource.methods]
     app.add_url_rule(rule, view_func=view_func, methods=methods, endpoint=endpoint, **options)
 
