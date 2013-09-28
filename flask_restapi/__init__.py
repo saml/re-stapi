@@ -1,3 +1,5 @@
+import operator
+
 from flask import abort
 
 from .helpers import is_accept, is_method, is_mimetype
@@ -36,17 +38,20 @@ class Resource(object):
                     return False
             return True
 
-        return self._if(pred)
+        return self._if(pred, len(preds))
 
-    def _if(self, pred):
+    def _if(self, pred, length=1):
+        '''Adds pred of given length to list of predicates to be used for request dispatch.
+        By default, pred length is 1.'''
         def wrapped(fn):
-            self.dispatch.append((pred, fn))
+            self.dispatch.append((length, pred, fn))
             return fn
         return wrapped
 
     def as_view(self):
+        self.dispatch.sort(key=operator.itemgetter(0), reverse=True) #sort by predicate length.
         def fn(*args, **kwargs):
-            for pred,f in self.dispatch:
+            for pred_length,pred,f in self.dispatch:
                 if pred():
                     return f(*args, **kwargs)
 

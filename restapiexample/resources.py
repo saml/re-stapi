@@ -4,9 +4,6 @@ from flask_restapi import Resource
 
 Index = Resource()
 
-@Index.when(method='GET', accept='application/json')
-def index_get_json():
-    return jsonify()
 
 @Index.method('GET')
 def index():
@@ -16,3 +13,6 @@ def index():
 def index_post():
     return 'POST index'
 
+@Index.when(method='GET', accept='application/json')
+def index_get_json():
+    return jsonify()
