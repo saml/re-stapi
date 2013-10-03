@@ -1,2 +1,4 @@
 Flask==0.10.1
 pytest==2.3.5
+pymongo==2.6.2
+Flask-PyMongo==0.3.0
